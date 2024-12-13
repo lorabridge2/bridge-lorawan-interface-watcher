@@ -23,11 +23,7 @@ def update_container_status():
         if c.status != "running":
             container_anomaly_cnt[container_name] += 1
             if container_anomaly_cnt[container_name] > 10:
-<<<<<<< HEAD
                 redis_client.lpush(LB_SYSTEM_EVENT_QUEUE, "Anomaly: "+container_name)
-=======
-                redis_client.lpush("Anomaly: " + container_name)
->>>>>>> ac8b1cde48c74a47a84881800ffad858469af185
                 container_anomaly_cnt[container_name] = 0
 
 
