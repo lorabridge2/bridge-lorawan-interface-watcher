@@ -14,18 +14,16 @@ redis_client = redis.Redis(
     db=int(os.environ.get("REDIS_DB", 0)),
 )
 
-container_anomaly_cnt = {"bridge-lorawan-interface-1": 0}
+container_prev_state = {"bridge-lorawan-interface-1": "running"}
 
 
 def update_container_status():
-    for container_name in container_anomaly_cnt.keys():
+    for container_name in container_prev_state.keys():
         c = client.containers.get(container_name)
-        if c.status != "running":
-            container_anomaly_cnt[container_name] += 1
-            if container_anomaly_cnt[container_name] > 10:
-                redis_client.lpush(LB_SYSTEM_EVENT_QUEUE, "Anomaly: "+container_name)
-                container_anomaly_cnt[container_name] = 0
-
+        if c.status != "running" and container_prev_state[container_name] == "running":                        
+            redis_client.lpush(LB_SYSTEM_EVENT_QUEUE, c.status+":"+container_name)
+        container_prev_state[container_name] = c.status
+                
 
 while True:
     update_container_status()
