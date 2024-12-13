@@ -12,7 +12,7 @@ redis_client = redis.Redis(
     db=int(os.environ.get("REDIS_DB", 0)),
 )
 
-container_anomaly_cnt = {"bridge-lorawan-interface": 0}
+container_anomaly_cnt = {"bridge-lorawan-interface-1": 0}
 
 def update_container_status():
     for container_name in container_anomaly_cnt.keys():
