@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 docker = "*"
+redis = "*"
+async-timeout = "*"
 
 [dev-packages]
 
