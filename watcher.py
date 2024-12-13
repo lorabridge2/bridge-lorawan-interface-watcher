@@ -21,6 +21,7 @@ def update_container_status():
     for container_name in container_prev_state.keys():
         c = client.containers.get(container_name)
         if c.status != "running" and container_prev_state[container_name] == "running":                        
+            print("Detected event: ", c.status, " from container ", container_name, ". Reporting via system events.")
             redis_client.lpush(LB_SYSTEM_EVENT_QUEUE, c.status+":"+container_name)
         container_prev_state[container_name] = c.status
                 
