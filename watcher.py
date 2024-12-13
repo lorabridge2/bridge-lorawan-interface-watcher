@@ -1,10 +1,32 @@
 import docker
+import redis
 import time
 
 client = docker.from_env()
+
+LB_SYSTEM_EVENT_QUEUE = "lorabridge:events:system"
+
+redis_client = redis.Redis(
+    host=os.environ.get("REDIS_HOST", "localhost"),
+    port=int(os.environ.get("REDIS_PORT", 6379)),
+    db=int(os.environ.get("REDIS_DB", 0)),
+)
+
+container_anomaly_cnt = {"bridge-lorawan-interface": 0}
+
+def update_container_status():
+    for container_name in container_anomaly_cnt.keys():
+        c = client.containers.get(container_name)
+        if c.status != "running":
+            container_anomaly_cnt[container_name] += 1
+            if container_anomaly_cnt[container_name] > 10:
+                redis_client.lpush("Anomaly: "+container_name)
+                container_anomaly_cnt[container_name] = 0
+
 while True:
+    update_container_status()
     c = client.containers.get("bridge-lorawan-interface-1")
-    print("Bridge lorawan interface container status: ", c.status)
+    #print("Bridge lorawan interface container status: ", c.status)
     if c.status == "exited" and c.attrs["State"]["ExitCode"] != 137:
         try:
             c.start()
