@@ -4,6 +4,7 @@ import time
 client = docker.from_env()
 while True:
     c = client.containers.get("bridge-lorawan-interface-1")
+    print("Bridge lorawan interface container status: ", c.status)
     if c.status == "exited" and c.attrs["State"]["ExitCode"] != 137:
         try:
             c.start()
@@ -17,4 +18,4 @@ while True:
                 print(err)
             else:
                 raise err
-    time.sleep(2)
+    time.sleep(0.5)
